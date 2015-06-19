@@ -51,6 +51,7 @@ def cluster_data(centers, data, c):
             data[i][-1] = cluster
     return data
 
+#Function to caluclate the centers of the clusters.
 def calculate_centers(data, k):
     data_length = len(data)
     new_centers = []
@@ -63,12 +64,13 @@ def calculate_centers(data, k):
             if(data[j][5] == i):
                 count += 1
                 total = map(add, data[j][0:4:1], total)
-        #Calculating the average center.
+        #Calculating the mean center.
         for l in xrange(0, 4):
             total[l] /= count   
         new_centers.append(total)
     return new_centers
 
+#Function to count the number of items in a cluster.
 def count_cluster_items(data, k):
     count = numpy.zeros(k)
     data_length = len(data)
@@ -78,6 +80,7 @@ def count_cluster_items(data, k):
                 count[i] += 1
     return count
 
+#Function to compare two lists.
 def compare_counts(old_count, new_count, k):
     for i in xrange(0, k):
         if(old_count[i] != new_count[i]):
@@ -86,11 +89,11 @@ def compare_counts(old_count, new_count, k):
             continue
     return True
 
-def evaluate_clusters(data, count, k):
+#Function to evaluate the clusters using simple methods.
+def simple_evaluate_clusters(data, count, k):
     data_length = len(data)
     evaluation = []
     for i in xrange(0, k):
-
         counter = collections.Counter()
         for j in xrange(0, data_length):
             if(data[j][5] == i):
@@ -101,11 +104,7 @@ def evaluate_clusters(data, count, k):
     print "Cluster 3: ", dict(evaluation[2]), "\n"
     for i in xrange(0, k):
         dominant_label = max(evaluation[i], key=evaluation[i].get)
-        print "Dominant label for cluster ", i + 1, " is ", dominant_label, " with ", evaluation[i][dominant_label], " out of ", int(count[i]), " data points. (", round(float((float(evaluation[i][dominant_label]) / count[i]) * float(100))
-            ), "%)"
-
-
-
+        print "Dominant label for cluster", i + 1, "is '", dominant_label, "' with", evaluation[i][dominant_label], "out of", int(count[i]), "data points. (", round(float((float(evaluation[i][dominant_label]) / count[i]) * float(100))), "%)"
 
 if __name__ == "__main__":
     #Setting K value.
@@ -123,12 +122,12 @@ if __name__ == "__main__":
     new_count = count_cluster_items(clustered_data, k)
     print new_count
     #Setting the flag and counter for the while loop.
-    same_flag = False
+    converge_flag = False
     counter = 1
 
 
-
-    while not bool(same_flag):
+    #This block executes while the clusters have not converged
+    while not bool(converge_flag):
         print "\nIteration ", counter
         old_count = new_count
         print "Calculating new cluster centers..."
@@ -138,12 +137,14 @@ if __name__ == "__main__":
         print "Counting cluster members..."
         new_count = count_cluster_items(clustered_data, k)
         print new_count
-        same_flag = compare_counts(old_count, new_count, k)
+        #Comparing the counts to check for convergence.
+        converge_flag = compare_counts(old_count, new_count, k)
         counter += 1
 
     print "\nCount has remained unchanged, clusters have converged to an optima."
     print  "Evaluating clusters..."
-    evaluation = evaluate_clusters(clustered_data, new_count, k)
+    #Evaluating clusters
+    evaluation = simple_evaluate_clusters(clustered_data, new_count, k)
 
 
 
