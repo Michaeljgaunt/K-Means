@@ -89,8 +89,8 @@ def compare_counts(old_count, new_count, k):
             continue
     return True
 
-#Function to evaluate the clusters using simple methods.
-def simple_evaluate_clusters(data, count, k):
+#Function to evaluate the clusters using simple metrics.
+def evaluate_clusters_simple(data, count, k):
     data_length = len(data)
     evaluation = []
     for i in xrange(0, k):
@@ -106,17 +106,43 @@ def simple_evaluate_clusters(data, count, k):
         dominant_label = max(evaluation[i], key=evaluation[i].get)
         print "Dominant label for cluster", i + 1, "is '", dominant_label, "' with", evaluation[i][dominant_label], "out of", int(count[i]), "data points. (", round(float((float(evaluation[i][dominant_label]) / count[i]) * float(100))), "% )"
 
-#Function to evaluate clusters using the more complex Davies-Bouldin index.
-def DBI_evaluate_clusters(data, centers, count, k):
+#Function to calculate the within-cluster scatter..
+def calc_within_cluster_scatter(data, centers, count, k):
     data_length = len(data)
     within_cluster_scatter = []
     total = 0
     for i in xrange(0, k):
         for j in xrange(0, data_length):
             if(data[j][5] == i):
-                total += distance.euclidean(data[j][0:4:1], centers[i][0:4:1])
+                total += distance.euclidean(data[j][0:4:1], centers[i])
         within_cluster_scatter.append((float(1) / count[i]) * total)
-    print within_cluster_scatter
+    return within_cluster_scatter
+
+#Function to calculate the between-cluster spread.
+def calc_between_cluster_spread(center1, center2):
+    return distance.euclidean(center1, center2)
+    
+#Function to calculate the measure of cluster 'goodness'
+def calc_cluster_measure(scatter1, scatter2, spread):
+    return ((scatter1 + scatter2) / spread)
+
+#Function to caclulate the Davies-Bouldin Index.
+def calc_dbi(k, d):
+    return (float(1) / float(k)) * (float(3) * float(d))
+
+#Function to perform DBI evaluation on a set of clusters.
+def evaluate_clusters_dbi(data, centers, count, k):
+    within_cluster_scatter = calc_within_cluster_scatter(clustered_data, centers, new_count, k)
+    sep1_2 = calc_between_cluster_spread(centers[0], centers[1])
+    sep1_3 = calc_between_cluster_spread(centers[0], centers[2])
+    sep2_3 = calc_between_cluster_spread(centers[1], centers[2])
+    cm1_2 = calc_cluster_measure(within_cluster_scatter[0], within_cluster_scatter[1], sep1_2)
+    cm1_3 = calc_cluster_measure(within_cluster_scatter[0], within_cluster_scatter[2], sep1_3)
+    cm2_3 = calc_cluster_measure(within_cluster_scatter[1], within_cluster_scatter[2], sep2_3)
+    dbi = calc_dbi(k, max(cm1_2, cm1_3, cm2_3))
+    print "Davies-Bouldin Index for cluster set (lower is better):", dbi
+
+
 if __name__ == "__main__":
     #Setting K value.
     k = 3
@@ -154,9 +180,9 @@ if __name__ == "__main__":
 
     print "\nCount has remained unchanged, clusters have converged to an optima."
     print  "Evaluating clusters..."
-    #Evaluating clusters
-    evaluation = simple_evaluate_clusters(clustered_data, new_count, k)
-    DBI_evaluate_clusters(clustered_data, centers, new_count, k)
+    #Evaluate clusters using simple metrics and also DBI.
+    evaluate_clusters_simple(clustered_data, new_count, k)
+    evaluate_clusters_dbi(clustered_data, centers, new_count, k)
 
 
 
