@@ -104,8 +104,19 @@ def simple_evaluate_clusters(data, count, k):
     print "Cluster 3: ", dict(evaluation[2]), "\n"
     for i in xrange(0, k):
         dominant_label = max(evaluation[i], key=evaluation[i].get)
-        print "Dominant label for cluster", i + 1, "is '", dominant_label, "' with", evaluation[i][dominant_label], "out of", int(count[i]), "data points. (", round(float((float(evaluation[i][dominant_label]) / count[i]) * float(100))), "%)"
+        print "Dominant label for cluster", i + 1, "is '", dominant_label, "' with", evaluation[i][dominant_label], "out of", int(count[i]), "data points. (", round(float((float(evaluation[i][dominant_label]) / count[i]) * float(100))), "% )"
 
+#Function to evaluate clusters using the more complex Davies-Bouldin index.
+def DBI_evaluate_clusters(data, centers, count, k):
+    data_length = len(data)
+    within_cluster_scatter = []
+    total = 0
+    for i in xrange(0, k):
+        for j in xrange(0, data_length):
+            if(data[j][5] == i):
+                total += distance.euclidean(data[j][0:4:1], centers[i][0:4:1])
+        within_cluster_scatter.append((float(1) / count[i]) * total)
+    print within_cluster_scatter
 if __name__ == "__main__":
     #Setting K value.
     k = 3
@@ -145,6 +156,7 @@ if __name__ == "__main__":
     print  "Evaluating clusters..."
     #Evaluating clusters
     evaluation = simple_evaluate_clusters(clustered_data, new_count, k)
+    DBI_evaluate_clusters(clustered_data, centers, new_count, k)
 
 
 
