@@ -74,15 +74,14 @@ def calculate_medoids(data, centers, k):
         closest = 0
         firstFlag = True
         for j in xrange(0, data_length):
-            if(data[j][5] == i):
-                if(firstFlag):
+            if(firstFlag):
+                closest = j
+                curr_dist = distance.euclidean(data[j][0:4:1], centers[i][0:4:1])
+                firstFlag = False
+            else:
+                if(distance.euclidean(data[j][0:4:1], centers[i][0:4:1]) < curr_dist):
                     closest = j
                     curr_dist = distance.euclidean(data[j][0:4:1], centers[i][0:4:1])
-                    firstFlag = False
-                else:
-                    if(distance.euclidean(data[j][0:4:1], centers[i][0:4:1]) < curr_dist):
-                        closest = j
-                        curr_dist = distance.euclidean(data[j][0:4:1], centers[i][0:4:1])
         medoids.append(data[closest][0:4:1])
     return medoids                    
 
@@ -160,15 +159,5 @@ def evaluate_clusters_dbi(data, centers, count, k):
     cm2_3 = calc_cluster_measure(within_cluster_scatter[1], within_cluster_scatter[2], sep2_3)
     dbi = calc_dbi(k, max(cm1_2, cm1_3, cm2_3))
     print "Davies-Bouldin Index for cluster set (lower is better):", dbi
-
-
-
-
-
-
-
-
-
-
 
 

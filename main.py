@@ -1,7 +1,6 @@
 import k_means
 import random
 import argparse
-import sys
 
 if __name__ == "__main__":
     
@@ -22,7 +21,11 @@ if __name__ == "__main__":
     feat_vects = k_means.get_feat_vects("iris.data.txt", 5)
     #Picking K random vectors to serve as initial cluster centres.
     print "Initialising cluster centers..."
-    centers = random.sample(feat_vects, k)
+    if(args.centroids):
+        centers = random.sample(feat_vects, k)
+    if(args.medoids):
+        centers = random.sample(feat_vects, k)
+        centers = k_means.calculate_medoids(feat_vects, centers, k) 
     #Performing initial clustering.
     print "Clustering data..."
     clustered_data = k_means.cluster_data(centers, feat_vects, True)
@@ -44,6 +47,7 @@ if __name__ == "__main__":
             centers = k_means.calculate_centers(clustered_data, k)
         elif(args.medoids):
             print "Calculating new cluster centers (medoids)..."
+            centers = k_means.calculate_centers(clustered_data, k)
             centers = k_means.calculate_medoids(clustered_data, centers, k)
         print "Clustering data..."
         clustered_data = k_means.cluster_data(centers, feat_vects, False)
@@ -59,6 +63,7 @@ if __name__ == "__main__":
     #Evaluate clusters using simple metrics and also DBI.
     k_means.evaluate_clusters_simple(clustered_data, new_count, k)
     k_means.evaluate_clusters_dbi(clustered_data, centers, new_count, k)
+
 
 
 
