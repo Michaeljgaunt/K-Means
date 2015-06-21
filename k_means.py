@@ -85,9 +85,6 @@ def calculate_medoids(data, centers, k):
         medoids.append(data[closest][0:4:1])
     return medoids                    
 
-            
-            
-
 #Function to count the number of items in a cluster.
 def count_cluster_items(data, k):
     count = numpy.zeros(k)
@@ -98,6 +95,13 @@ def count_cluster_items(data, k):
                 count[i] += 1
     return count
 
+#Function to check if the clusters are all non-zero.
+def check_count(count, k):
+    for i in xrange(0, k):
+        if (count[i] == 0):
+            return False
+    return True
+    
 #Function to compare two lists.
 def compare_counts(old_count, new_count, k):
     for i in xrange(0, k):
@@ -193,3 +197,5 @@ def evaluate_clusters_complex(data, centers, count, k):
     ssb = calc_between_cluster_variance(data, centers, count, k)
     chi = calc_chi(len(data), k, ssb, ssw)
     print "Calinski-Harabasz Index for cluster set (higher is better):", round(chi, 4)
+
+

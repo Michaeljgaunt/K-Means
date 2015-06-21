@@ -16,31 +16,41 @@ if __name__ == "__main__":
 
     #Setting K value.
     k = 3
-    #Generating vectors from the data file.
-    print "\nLoading dataset..."
-    feat_vects = k_means.get_feat_vects("iris.data.txt", 5)
-    #Picking K random vectors to serve as initial cluster centres.
-    print "Initialising cluster centers..."
-    if(args.centroids):
-        centers = random.sample(feat_vects, k)
-    if(args.medoids):
-        centers = random.sample(feat_vects, k)
-        centers = k_means.calculate_medoids(feat_vects, centers, k) 
-    #Performing initial clustering.
-    print "Clustering data..."
-    clustered_data = k_means.cluster_data(centers, feat_vects, True)
-    #Counting members in each cluster.
-    print "Counting cluster members..."
-    new_count = k_means.count_cluster_items(clustered_data, k)
-    print new_count
-    #Setting the flag and counter for the while loop.
-    converge_flag = False
-    counter = 1
+    #Setting acceptable initialisation flag.
+    init_flag = False
+    while not (init_flag):
+        #Generating vectors from the data file.
+        print "\nLoading dataset..."
+        feat_vects = k_means.get_feat_vects("iris.data.txt", 5)
+        print "Initialising cluster centers..."
+        if(args.centroids):
+            #Picking K random vectors to serve as initial cluster centres.
+            centers = random.sample(feat_vects, k)
+        if(args.medoids):
+            centers = random.sample(feat_vects, k)
+            #Assigning datapoints nearest to randomly generated points as the centers.
+            centers = k_means.calculate_medoids(feat_vects, centers, k) 
+        #Performing initial clustering.
+        print "Clustering data..."
+        clustered_data = k_means.cluster_data(centers, feat_vects, True)
+        #Counting members in each cluster.
+        print "Counting cluster members..."
+        new_count = k_means.count_cluster_items(clustered_data, k)
+        print new_count
+        print "Checking clusters are acceptable..."
+        init_flag = k_means.check_count(new_count, k)
+        if not (init_flag):
+            print "Non-zero cluster detected, re-initialising algorithm."
+        else: 
+            print "Clusters are acceptable, proceeding with iterations."
+        #Setting the flag and counter for the while loop.
+        converge_flag = False
+        counter = 1
 
 
     #This block executes while the clusters have not converged
     while not bool(converge_flag):
-        print "\nIteration ", counter
+        print "\nIteration", counter
         old_count = new_count
         if(args.centroids):
             print "Calculating new cluster centers (mean centroids)..."
@@ -62,15 +72,4 @@ if __name__ == "__main__":
     print  "Evaluating clusters..."
     #Evaluate clusters using simple metrics and also DBI.
     k_means.evaluate_clusters_simple(clustered_data, new_count, k)
-    k_means.evaluate_clusters_dbi(clustered_data, centers, new_count, k)
-
-
-
-
-
-
-
-
-
-
-
+    k_means.evaluate_clusters_complex(clustered_data, centers, new_count, k)
