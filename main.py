@@ -1,4 +1,5 @@
 import k_means
+import stats
 import random
 import argparse
 
@@ -71,5 +72,5 @@ if __name__ == "__main__":
     print "\nCount has remained unchanged, clusters have converged to an optima."
     print  "Evaluating clusters..."
     #Evaluate clusters using simple metrics and also DBI.
-    k_means.evaluate_clusters_simple(clustered_data, new_count, k)
-    k_means.evaluate_clusters_complex(clustered_data, centers, new_count, k)
+    stats.evaluate_clusters_simple(clustered_data, new_count, k)
+    stats.evaluate_clusters_complex(clustered_data, centers, new_count, k)
